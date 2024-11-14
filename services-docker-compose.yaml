@@ -1,0 +1,122 @@
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: bikerentals_mq
+    hostname: bikerentals_mq
+    environment:
+      - RABBITMQ_DEFAULT_USER=root
+      - RABBITMQ_DEFAULT_PASS=root
+    ports:
+      - "5672:5672"
+      - "15672:15672" 
+    restart: always 
+
+  log_db:
+    image: mysql
+    hostname: log_db
+    container_name: bikerentals_log_db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=log_bikerentals
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
+    volumes:
+      - mysql-volume:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+        test: ["CMD", "mysqladmin","ping", "-h", "localhost", "-u", "root", "-ppassword"]
+        interval: 10s
+        timeout: 10s
+        retries: 10
+        start_period: 30s
+
+  auth_gateway:
+    image: bikerentals/auth-gateway
+    hostname: auth_gateway
+    container_name: bikerentals_auth_gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - MQ_HOST=amqp://root:root@bikerentals_mq
+      - MQ_USER=root
+      - MQ_PASSWORD=root
+      - API_KEY=23d75ae9-8501-47e0-80a4-20d5643f8642
+      - JWT_SIGNATURE_KEY=78cfc4e0-7009-49cb-9434-c831538efbe3
+      - MAIN_API_URL=http://bike_manager:8001
+
+  bike_manager:
+    image: bikerentals/bike-manager
+    hostname: bike_manager
+    container_name: bikerentals_bike_manager
+    ports:
+      - "8001:8001"
+    environment:
+      - MQ_HOST=amqp://root:root@bikerentals_mq
+      - MQ_USER=root
+      - MQ_PASSWORD=root
+      - ASPNETCORE_URLS=http://bike_manager:8001  
+      - AWS_KEY_ID=${AWS_S3_AWS_KEY_ID}
+      - AWS_KEY_SECRET=${AWS_S3_AWS_KEY_SECRET}    
+
+  log_service:
+    image: bikerentals/logservice
+    hostname: log_service
+    container_name: log_service
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=log_db
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - QUEUE_URL=amqp://root:root@bikerentals_mq
+    
+    depends_on:
+      log_db:
+        condition: service_healthy
+        restart: true
+
+  payment_gateway:
+    image: bikerentals/payment-gateway
+    hostname: payment_gateway
+    ports:
+      - "8004:8004"
+    environment:
+      - ASPNETCORE_URLS=http://payment_gateway:8004
+
+  payment_service:
+    image: bikerentals/payment-service
+    hostname: payment_service
+    container_name: bikerentals_payment_service
+    ports:
+      - "8003:8003"
+    environment:
+      - MQ_HOST=amqp://root:root@bikerentals_mq
+      - MQ_USER=root
+      - MQ_PASSWORD=root
+      - HOST_ADDRESS=http://payment_service:8003
+      - PAYMENT_GATEWAY_URL=http://payment_gateway:8004/payment
+      - ASPNETCORE_URLS=http://payment_service:8003
+
+  notification_service:
+    image: bikerentals/notification-service
+    hostname: notification_service
+    container_name: bikerentals_notification_service
+    ports:
+      - "8002:8002"
+    environment:
+      - MQ_HOST=amqp://root:root@bikerentals_mq
+      - MQ_USER=root
+      - MQ_PASSWORD=root
+      - ASPNETCORE_URLS=http://notification_service:8002
+      - IDENTITY_SERVICE_URL=http://auth_gateway:8080
+      - API_KEY=23d75ae9-8501-47e0-80a4-20d5643f8642
+      - ACCESS_KEY_ID=${AWS_SES_ACCESS_KEY_SECRET}
+      - ACCESS_KEY_SECRET=${AWS_SES_ACCESS_KEY_ID}
+  
+
+volumes:
+  mysql-volume:
+    driver: local

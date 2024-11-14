@@ -1,0 +1,8 @@
+@BikeRentalPaymentService_HostAddress = http://localhost:5046
+
+GET {{BikeRentalPaymentService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+POST https://localhost:7199/api/v1/payment-confirmation/a5a576a0-e8d0-4869-8409-e3d07323397c

@@ -1,0 +1,6 @@
+@BikeRentalAuthGateway_HostAddress = http://localhost:5143
+
+GET {{BikeRentalAuthGateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
