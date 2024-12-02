@@ -1,0 +1,55 @@
+<!-- res/layout/activity_payment.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+
+    <TextView
+        android:id="@+id/tvBikeKeDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:textSize="24sp"
+        android:layout_marginHorizontal="16dp"/>
+
+
+    <ImageView
+        android:id="@+id/bikeFullImg"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/ic_launcher_background"/>
+
+
+    <EditText
+        android:layout_marginTop="50dp"
+        android:id="@+id/inputCardNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Número do Cartão"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/inputCardExpiry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Validade (MM/AA)"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/inputCardCVC"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="CVC"
+        android:inputType="numberPassword" />
+
+    <Button
+        android:id="@+id/btnConfirmPayment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Confirmar Pagamento" />
+
+</LinearLayout>

@@ -1,4 +1,5 @@
 services:
+
   rabbitmq:
     image: rabbitmq:management
     container_name: bikerentals_mq
@@ -113,8 +114,8 @@ services:
       - ASPNETCORE_URLS=http://notification_service:8002
       - IDENTITY_SERVICE_URL=http://auth_gateway:8080
       - API_KEY=23d75ae9-8501-47e0-80a4-20d5643f8642
-      - ACCESS_KEY_ID=${AWS_SES_ACCESS_KEY_SECRET}
-      - ACCESS_KEY_SECRET=${AWS_SES_ACCESS_KEY_ID}
+      - ACCESS_KEY_ID=${AWS_SES_ACCESS_KEY_ID}
+      - ACCESS_KEY_SECRET=${AWS_SES_ACCESS_KEY_SECRET}
   
 
 volumes:
